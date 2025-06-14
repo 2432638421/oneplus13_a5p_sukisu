@@ -1,33 +1,20 @@
 name: oneplus_ace5_pro
 on:
   workflow_dispatch:
+    # 移除所有输入参数，使用硬编码固定值
     inputs:
-      KERNEL_SUFFIX:
-        description: '内核名称修改(可改中文和emoji)'
-        required: true
-        default: '-酷安FutabaWa'
-      KERNEL_TIME:
-       description: "内核构建日期更改(默认为原厂)"
-       required: true
-       default: 'Wed Dec 4 02:11:46 UTC 2024'
-      enable_feature_x:
-       description: "是否启用kpm"
-       required: false
-       default: false
-       type: boolean
       enable_feature_y:
-       description: "是否启用lz4kd"
-       required: false
-       default: false
-       type: boolean
+        description: "是否启用lz4kd"
+        required: false
+        default: false
+        type: boolean
       enable_feature_z:
-       description: "是否添加风驰驱动"
-       required: false
-       default: false
-       type: boolean
+        description: "是否添加风驰驱动"
+        required: false
+        default: false
+        type: boolean
       
        
-
 
 jobs:
   build:
@@ -245,22 +232,12 @@ jobs:
           cd common
           git add -A && git commit -a -m "BUILD Kernel"
       
-      - name: Add KPM Configuration Settings
-        if: ${{inputs.enable_feature_x }}
-        run: |
-          cd kernel_workspace/kernel_platform
-          echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
-         
-          #Remove check_defconfig
-          sudo sed -i 's/check_defconfig//' ./common/build.config.gki
-          cd common
-          git add -A && git commit -a -m "BUILD Kernel"
-          
       - name: Add make name
         run: |
          cd kernel_workspace/kernel_platform
          sed -i 's/${scm_version}//' ./common/scripts/setlocalversion
-         sudo sed -i 's/-4k/${{ github.event.inputs.KERNEL_SUFFIX }}/g' ./common/arch/arm64/configs/gki_defconfig
+         # 硬编码固定内核后缀
+         sudo sed -i 's/-4k/-android15-8-g013ec21bba94-abogki383916444-4k/g' ./common/arch/arm64/configs/gki_defconfig
         
       - name: Add sched_ext
         if: ${{inputs.enable_feature_z }}
@@ -273,7 +250,8 @@ jobs:
 
       - name: Build Kernel
         run: |
-          export KBUILD_BUILD_TIMESTAMP="${{ github.event.inputs.KERNEL_TIME }}"
+          # 硬编码固定构建时间
+          export KBUILD_BUILD_TIMESTAMP="Tue Dec 17 23:36:49 UTC 2024"
           export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
           export PATH="/usr/lib/ccache:$PATH"
           sudo apt install libelf-dev
